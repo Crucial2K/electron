@@ -110,7 +110,7 @@ views::View* InspectableWebContentsViewViews::GetWebView() {
   return contents_web_view_;
 }
 
-void InspectableWebContentsViewViews::ShowDevTools() {
+void InspectableWebContentsViewViews::ShowDevTools(bool activate) {
   if (devtools_visible_)
     return;
 
@@ -120,7 +120,11 @@ void InspectableWebContentsViewViews::ShowDevTools() {
         inspectable_web_contents_->GetDevToolsWebContents());
     devtools_window_->SetBounds(
         inspectable_web_contents()->GetDevToolsBounds());
-    devtools_window_->Show();
+    if (activate) {
+      devtools_window_->Show();
+    } else {
+      devtools_window_->ShowInactive();
+    }
   } else {
     devtools_web_view_->SetVisible(true);
     devtools_web_view_->SetWebContents(
@@ -161,7 +165,7 @@ bool InspectableWebContentsViewViews::IsDevToolsViewFocused() {
     return false;
 }
 
-void InspectableWebContentsViewViews::SetIsDocked(bool docked) {
+void InspectableWebContentsViewViews::SetIsDocked(bool docked, bool activate) {
   CloseDevTools();
 
   if (!docked) {
@@ -186,7 +190,7 @@ void InspectableWebContentsViewViews::SetIsDocked(bool docked) {
     devtools_window_->UpdateWindowIcon();
   }
 
-  ShowDevTools();
+  ShowDevTools(activate);
 }
 
 void InspectableWebContentsViewViews::SetContentsResizingStrategy(

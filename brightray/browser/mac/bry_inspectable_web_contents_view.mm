@@ -53,7 +53,7 @@
 }
 
 - (IBAction)showDevTools:(id)sender {
-  inspectableWebContentsView_->inspectable_web_contents()->ShowDevTools();
+  inspectableWebContentsView_->inspectable_web_contents()->ShowDevTools(true);
 }
 
 - (void)notifyDevToolsFocused {
@@ -61,7 +61,7 @@
     inspectableWebContentsView_->GetDelegate()->DevToolsFocused();
 }
 
-- (void)setDevToolsVisible:(BOOL)visible {
+- (void)setDevToolsVisible:(BOOL)visible activate:(BOOL)activate {
   if (visible == devtools_visible_)
     return;
 
@@ -96,7 +96,11 @@
     }
   } else {
     if (visible) {
-      [devtools_window_ makeKeyAndOrderFront:nil];
+      if (activate) {
+        [devtools_window_ makeKeyAndOrderFront:nil];
+      } else {
+        [devtools_window_ orderBack:nil];
+      }
     } else {
       [devtools_window_ setDelegate:nil];
       [devtools_window_ close];
@@ -117,9 +121,9 @@
   }
 }
 
-- (void)setIsDocked:(BOOL)docked {
+- (void)setIsDocked:(BOOL)docked activate:(BOOL)activate {
   // Revert to no-devtools state.
-  [self setDevToolsVisible:NO];
+  [self setDevToolsVisible:NO activate:NO];
 
   // Switch to new state.
   devtools_docked_ = docked;
@@ -153,7 +157,7 @@
 
     [contentView addSubview:devToolsView];
   }
-  [self setDevToolsVisible:YES];
+  [self setDevToolsVisible:YES activate:activate];
 }
 
 - (void)setContentsResizingStrategy:

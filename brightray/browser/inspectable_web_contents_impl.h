@@ -50,7 +50,7 @@ class InspectableWebContentsImpl
   InspectableWebContentsDelegate* GetDelegate() const override;
   void SetDevToolsWebContents(content::WebContents* devtools) override;
   void SetDockState(const std::string& state) override;
-  void ShowDevTools() override;
+  void ShowDevTools(bool activate) override;
   void CloseDevTools() override;
   bool IsDevToolsViewShowing() override;
   void AttachTo(scoped_refptr<content::DevToolsAgentHost>) override;
@@ -199,6 +199,7 @@ class InspectableWebContentsImpl
   gfx::Rect devtools_bounds_;
   bool can_dock_;
   std::string dock_state_;
+  bool activate_ = true;
 
   using PendingRequestsMap = std::map<const net::URLFetcher*, DispatchCallback>;
   PendingRequestsMap pending_requests_;
