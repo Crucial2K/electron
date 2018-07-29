@@ -34,8 +34,7 @@ class NativeImage;
 
 class Tray : public mate::TrackableObject<Tray>, public TrayIconObserver {
  public:
-  static mate::WrappableBase* New(mate::Handle<NativeImage> image,
-                                  mate::Arguments* args);
+  static mate::WrappableBase* New(mate::Arguments* args);
 
   static void BuildPrototype(v8::Isolate* isolate,
                              v8::Local<v8::FunctionTemplate> prototype);
@@ -65,8 +64,9 @@ class Tray : public mate::TrackableObject<Tray>, public TrayIconObserver {
   void OnMouseExited(const gfx::Point& location, int modifiers) override;
   void OnMouseMoved(const gfx::Point& location, int modifiers) override;
 
+  void SetImageOptional(v8::Isolate* isolate, mate::Arguments* args);
   void SetImage(v8::Isolate* isolate, mate::Handle<NativeImage> image);
-  void SetPressedImage(v8::Isolate* isolate, mate::Handle<NativeImage> image);
+  void SetPressedImage(v8::Isolate* isolate, mate::Arguments* args);
   void SetToolTip(const std::string& tool_tip);
   void SetTitle(const std::string& title);
   void SetHighlightMode(TrayIcon::HighlightMode mode);

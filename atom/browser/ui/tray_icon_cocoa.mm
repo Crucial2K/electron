@@ -41,8 +41,7 @@ const CGFloat kVerticalTitleMargin = 2;
 
 @implementation StatusItemView
 
-- (id)initWithImage:(NSImage*)image icon:(atom::TrayIconCocoa*)icon {
-  image_.reset([image copy]);
+- (id)initWithIcon:(atom::TrayIconCocoa*)icon {
   trayIcon_ = icon;
   highlight_mode_ = atom::TrayIcon::HighlightMode::SELECTION;
   ignoreDoubleClickEvents_ = NO;
@@ -156,6 +155,8 @@ const CGFloat kVerticalTitleMargin = 2;
 
 // The width of the icon.
 - (CGFloat)iconWidth {
+  if (!image_ && title_)
+    return kHorizontalMargin;
   CGFloat thickness = [[NSStatusBar systemStatusBar] thickness];
   CGFloat imageHeight = [image_ size].height;
   CGFloat imageWidth = [image_ size].width;
@@ -424,7 +425,9 @@ const CGFloat kVerticalTitleMargin = 2;
 
 namespace atom {
 
-TrayIconCocoa::TrayIconCocoa() {}
+TrayIconCocoa::TrayIconCocoa() {
+  status_item_view_.reset([[StatusItemView alloc] initWithIcon:this]);
+}
 
 TrayIconCocoa::~TrayIconCocoa() {
   [status_item_view_ removeItem];
@@ -433,12 +436,7 @@ TrayIconCocoa::~TrayIconCocoa() {
 }
 
 void TrayIconCocoa::SetImage(const gfx::Image& image) {
-  if (status_item_view_) {
-    [status_item_view_ setImage:image.AsNSImage()];
-  } else {
-    status_item_view_.reset(
-        [[StatusItemView alloc] initWithImage:image.AsNSImage() icon:this]);
-  }
+  [status_item_view_ setImage:image.IsEmpty() ? nil : image.AsNSImage()];
 }
 
 void TrayIconCocoa::SetPressedImage(const gfx::Image& image) {

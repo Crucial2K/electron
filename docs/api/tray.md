@@ -60,9 +60,10 @@ rely on the `click` event and always attach a context menu to the tray icon.
 
 ### `new Tray(image)`
 
-* `image` ([NativeImage](native-image.md) | String)
+* `image` ([NativeImage](native-image.md) | String | null)
 
 Creates a new tray icon associated with the `image`.
+On macOS the icon can be `null`, which allows creating a text only item.
 
 ### Instance Events
 
@@ -188,13 +189,13 @@ Destroys the tray icon immediately.
 
 #### `tray.setImage(image)`
 
-* `image` ([NativeImage](native-image.md) | String)
+* `image` ([NativeImage](native-image.md) | String | null)
 
-Sets the `image` associated with this tray icon.
+Sets the `image` associated with this tray icon (it can only be `null` on macOS).
 
 #### `tray.setPressedImage(image)` _macOS_
 
-* `image` [NativeImage](native-image.md)
+* `image` ([NativeImage](native-image.md) | String | null)
 
 Sets the `image` associated with this tray icon when pressed on macOS.
 

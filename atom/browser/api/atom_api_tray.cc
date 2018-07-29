@@ -66,8 +66,14 @@ Tray::~Tray() {
 }
 
 // static
-mate::WrappableBase* Tray::New(mate::Handle<NativeImage> image,
-                               mate::Arguments* args) {
+mate::WrappableBase* Tray::New(mate::Arguments* args) {
+  mate::Handle<NativeImage> image;
+  if (!args->GetNext(&image)) {
+#if !defined(OS_MACOSX)
+    args->ThrowError("'image' must be defined");
+    return nullptr;
+#endif
+  }
   if (!Browser::Get()->is_ready()) {
     args->ThrowError("Cannot create Tray before app is ready");
     return nullptr;
@@ -137,20 +143,30 @@ void Tray::OnDragEnded() {
   Emit("drag-end");
 }
 
+void Tray::SetImageOptional(v8::Isolate* isolate, mate::Arguments* args) {
+  mate::Handle<NativeImage> image;
+  args->GetNext(&image);
+  SetImage(isolate, image);
+}
+
 void Tray::SetImage(v8::Isolate* isolate, mate::Handle<NativeImage> image) {
 #if defined(OS_WIN)
-  tray_icon_->SetImage(image->GetHICON(GetSystemMetrics(SM_CXSMICON)));
+  tray_icon_->SetImage(
+      image.IsEmpty() ? NULL : image->GetHICON(GetSystemMetrics(SM_CXSMICON)));
 #else
-  tray_icon_->SetImage(image->image());
+  tray_icon_->SetImage(image.IsEmpty() ? gfx::Image() : image->image());
 #endif
 }
 
-void Tray::SetPressedImage(v8::Isolate* isolate,
-                           mate::Handle<NativeImage> image) {
+void Tray::SetPressedImage(v8::Isolate* isolate, mate::Arguments* args) {
+  mate::Handle<NativeImage> image;
+  args->GetNext(&image);
+
 #if defined(OS_WIN)
-  tray_icon_->SetPressedImage(image->GetHICON(GetSystemMetrics(SM_CXSMICON)));
+  tray_icon_->SetPressedImage(
+      image.IsEmpty() ? NULL : image->GetHICON(GetSystemMetrics(SM_CXSMICON)));
 #else
-  tray_icon_->SetPressedImage(image->image());
+  tray_icon_->SetPressedImage(image.IsEmpty() ? gfx::Image() : image->image());
 #endif
 }
 
@@ -223,7 +239,11 @@ void Tray::BuildPrototype(v8::Isolate* isolate,
   prototype->SetClassName(mate::StringToV8(isolate, "Tray"));
   mate::ObjectTemplateBuilder(isolate, prototype->PrototypeTemplate())
       .MakeDestroyable()
+#if defined(OS_MACOSX)
+      .SetMethod("setImage", &Tray::SetImageOptional)
+#else
       .SetMethod("setImage", &Tray::SetImage)
+#endif
       .SetMethod("setPressedImage", &Tray::SetPressedImage)
       .SetMethod("setToolTip", &Tray::SetToolTip)
       .SetMethod("setTitle", &Tray::SetTitle)
