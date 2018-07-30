@@ -700,10 +700,9 @@ describe('asar package', function () {
         })
       })
 
-      it('can be promisified', (done) => {
-        util.promisify(ChildProcess.exec)('echo ' + echo + ' foo bar').then(({ stdout }) => {
+      it('can be promisified', () => {
+        return util.promisify(ChildProcess.exec)('echo ' + echo + ' foo bar').then(({ stdout }) => {
           assert.equal(stdout.toString().replace(/\r/g, ''), echo + ' foo bar\n')
-          done()
         })
       })
     })
@@ -743,10 +742,9 @@ describe('asar package', function () {
         assert.equal(String(output), 'test\n')
       })
 
-      it('can be promisified', (done) => {
-        util.promisify(ChildProcess.execFile)(echo, ['test']).then(({ stdout }) => {
+      it('can be promisified', () => {
+        return util.promisify(ChildProcess.execFile)(echo, ['test']).then(({ stdout }) => {
           assert.equal(stdout, 'test\n')
-          done()
         })
       })
     })
